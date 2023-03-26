@@ -1,0 +1,163 @@
+﻿@*@model WebApplication2.Models.TodoList
+    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+    @{
+        ViewData["Title"] = "Create";
+        Layout = "~/Pages/Shared/_Layout.cshtml";
+    }*@
+
+
+<!--<h1>Create</h1>
+
+<h4>TodoList</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Desc" class="control-label"></label>
+                <input asp-for="Desc" class="form-control" />
+                <span asp-validation-for="Desc" class="text-danger"></span>
+            </div>-->
+@*<div class="form-group">
+        <label asp-for="CreatedOn" class="control-label"></label>
+        <input asp-for="CreatedOn" class="form-control" />
+        <span asp-validation-for="CreatedOn" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CreatedBy" class="control-label"></label>
+        <input asp-for="CreatedBy" class="form-control" />
+        <span asp-validation-for="CreatedBy" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ModifiedOn" class="control-label"></label>
+        <input asp-for="ModifiedOn" class="form-control" />
+        <span asp-validation-for="ModifiedOn" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ModifiedCount" class="control-label"></label>
+        <input asp-for="ModifiedCount" class="form-control" />
+        <span asp-validation-for="ModifiedCount" class="text-danger"></span>
+    </div>*@
+@*<div class="form-group form-check">
+        <label class="form-check-label">
+            <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
+        </label>
+    </div>*@
+<!--<div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>-->
+@*<div>
+        <a asp-action="Index">Back to List</a>
+    </div>*@
+
+<div class="modal fade" id="addeditModal" tabindex="-1" aria-labelledby="addeditModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addeditModalLabel">New message</h1>
+                <input type="hidden" id="idTodo">
+                <input type="hidden" id="modifiedCount">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="title-name" class="col-form-label">Title:</label>
+                        <input type="text" class="form-control" id="titleTxt">
+                    </div>
+                    <div class="mb-3">
+                        <label for="message-text" class="col-form-label">Desc:</label>
+                        <textarea class="form-control" id="descTxt"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="addTodo">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+<script type="text/javascript">
+
+    $('#addTodo').click(function () {
+
+        var todoModel = {
+            Id: isNaN($('#idTodo').val()) || $('#idTodo').val() == '' ? 0 : parseInt($('#idTodo').val()),
+            Title: $('#titleTxt').val().toString(),
+            Desc: $('#descTxt').val().toString(),
+            ModifiedCount: parseInt(isNaN($('#modifiedCount').val()) || $('#modifiedCount').val() == '' ? 0 : $('#modifiedCount').val())
+        };
+        console.log(todoModel);
+
+        $.ajax({
+            url: '@Url.Action("Create", "TodoNotes")',
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(todoModel),
+            success: function (data) {
+                window.location.reload();
+                if (data > 0) {
+                    alert('Nice, you have added a New TODO!', 'success');
+                } else {
+                    alert('Sorry, something went wrong while adding New TODO!', 'danger');
+                }
+
+            },
+            statusCode: {
+                404: function (content) { alert('cannot find resource'); },
+                500: function (content) { alert('internal server error'); }
+            },
+            error: function (req, status, errorObj) {
+                // handle status === "timeout"
+                // handle other errors
+            }
+        }).done(function () {
+            $('#addeditModal').modal('toggle');
+        });
+    });
+
+    const callEditItem = function (id) {
+        $('#addTodo').html('Edit');
+         $.ajax({
+            url: '@Url.Action("Details", "TodoNotes")',
+            type: 'GET',
+            data: ({ 'id': parseInt(id)}),
+            contentType:'application/json; charset=utf-8',
+             success: function (data) {
+                 //var result = JSON.stringify(data);
+                 $('#idTodo').val(data.id);
+                 $('#titleTxt').val(data.title);
+                 $('#descTxt').val(data.desc);
+                 $('#modifiedCount').val(data.modifiedCount);
+                 console.log(data);
+             },
+            statusCode: {
+                404: function (content) { alert('cannot find resource'); },
+                500: function (content) { alert('internal server error'); }
+            },
+            error: function (req, status, errorObj) {
+                // handle status === "timeout"
+                // handle other errors
+             }
+         }).done(function () {
+
+         });
+    }
+
+</script>

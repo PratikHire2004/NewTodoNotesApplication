@@ -1,0 +1,106 @@
+﻿@model TodoNotesApplication.Models.TodoViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Todo List";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<p>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addeditModal" data-bs-whatever="">Create New Todo</button>
+</p>
+<div id="liveAlertPlaceholder"></div>
+
+<div class="row pb-3">
+    <div class="col-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Total TODO Added</h5>
+                <p class="card-text" id="idTotalTodo">@Model.TotalTodo</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Total TODO Deleted</h5>
+                <p class="card-text" id="idDeletedTodo">@Model.DeletedTodo</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Total TODO Modified</h5>
+                <p class="card-text" id="idModifiedTodo">@Model.ModifiedTodo</p>
+            </div>
+        </div>
+    </div>
+</div>
+<h1>TODO List</h1>
+<div class="row">
+    @foreach (var item in Model.Todos)
+    {
+        <div class="col-3 pb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">@Html.DisplayFor(modelItem => item.Title)</h5>
+                    <p class="card-text">@Html.DisplayFor(modelItem => item.Desc)</p>
+                    @*<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary">Edit</a>*@
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addeditModal" data-bs-whatever="@item.Id">Edit</button>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-whatever="@item.Id">Delete</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+
+<partial name="Delete" />
+<partial name="Create" />
+
+
+<script type="text/javascript">
+    const addeditModal = document.getElementById('addeditModal')
+    addeditModal.addEventListener('show.bs.modal', event => {
+        const button = event.relatedTarget;        
+        const id = button.getAttribute('data-bs-whatever');        
+        const modalTitle = addeditModal.querySelector('.modal-title')
+        modalTitle.textContent = id ? 'Edit Todo ' : 'Add New Todo';
+        if (id)
+            callEditItem(id);
+    })
+    const deleteModal = document.getElementById('deleteModal')
+    deleteModal.addEventListener('show.bs.modal', event => {
+       
+        const button = event.relatedTarget;
+        const id = button.getAttribute('data-bs-whatever');
+        const modalTitle = deleteModal.querySelector('.modal-title')
+        //const modalBodyInput = AddEditModal.querySelector('.modal-body input')
+        $('#idDelete').val(id);
+        modalTitle.textContent = id;
+        //modalBodyInput.value = recipient
+    })
+
+    $('#idCloseSuccess').click(function () {
+        $('#successModal').modal('toggle');
+    });
+
+    const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+
+    const alert = (message, type) => {
+        const wrapper = document.createElement('div')
+        wrapper.innerHTML = [
+            `<div class="row alert alert-${type} alert-dismissible w-50" role="alert">`,
+            `   <div>${message}</div>`,
+            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">X</button>',
+            '</div>'
+        ].join('')
+
+        alertPlaceholder.append(wrapper)
+    }
+
+
+
+</script>
